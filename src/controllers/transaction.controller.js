@@ -92,4 +92,28 @@ const initiateTransaction = asyncHandler(async(req,res) => {
     }
 });
 
-export {initiateTransaction};
+const getTransactionHistory = asyncHandler(async (req,res) => {
+    try
+    {
+        const id = req?.user?._id;
+        if(!id)
+        {
+            return res.Transaction(400).json(new ApiResponse(400,{},"Id is required"));
+        }
+        const userDetails = await User.findById(id);
+        if(!userDetails)
+        {
+            return res.status(400).json(new ApiResponse(400,{},"Error while getting user details"));
+        }
+
+        const transaction = await Transaction.find({senderUpiId: userDetails?.upiId});
+
+        return res.status(200).json(new ApiResponse(200,transaction,"Transaction history"));
+    }
+    catch(e)
+    {
+        return res.status(500).json(new ApiResponse(500,{},"Error while fetching transaction"));
+    }
+})
+
+export {initiateTransaction, getTransactionHistory};
